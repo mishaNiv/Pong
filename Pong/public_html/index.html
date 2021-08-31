@@ -1,0 +1,153 @@
+<HTML>
+    <!-- TO PLAY GAME, USE THIS LINK: https://s2js.com/mishpup/pong-->
+ <head>
+  <title> Pong </title>
+ </head>
+
+<body>
+ <canvas id=myCanvas width=300 height=300 style="background-color: pink;"> 
+ </canvas>
+ <script>
+  var ctx = myCanvas.getContext("2d"); 
+  
+  function drawThings()
+  {
+      clearThings();
+      
+      drawBall(xball, yball, radius, "green");
+
+      drawStick(xstick , ystick, width, height, "black");
+      
+      writeScore();
+  }
+  
+  function writeScore()
+  {
+      ctx.fillText("Score = " + score, 200, 20);    
+      ctx.fillText("Chances = " + chances, 200, 30)
+  }
+  
+  function clearThings()
+  {
+      ctx.clearRect(0, 0, 300, 300);
+  }
+  
+  function drawBall(xball, yball, radius, color) 
+  {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(xball, yball, radius,  0, Math.PI * 2);
+      ctx.fill();
+  }
+
+  function drawStick(xstick, ystick, width, height, color) 
+  {
+        ctx.fillStyle = color;
+        ctx.fillRect(xstick, ystick, width, height);
+  }
+  
+  function MyTimer() 
+  {
+       yball = yball + ballDirection;
+       intersect();
+       
+       if (gameOver)
+       {
+          clearInterval(ballTimer);
+          ctx.fillText("Game Over!", 150, 150);
+       }
+       else
+       {
+           drawThings();
+       }
+  }
+  
+  var chances = 3;
+  var score = 0;
+  var gameOver = false;
+  
+  function IsGameOver()
+  {
+     chances = chances - 1;
+     if (chances == 0)
+     {
+         gameOver = true;
+     }
+     else
+     {
+        yball = radius;
+        xball = getRandom(radius, 300 - radius);
+        stopBall = false;
+     }
+  }
+  
+  function intersect() 
+  {
+      if (ballDirection == 1)
+      {
+         xIntersect = (xball >= xstick) && (xball <= xstick + width);
+         yIntersect = (yball + radius) == ystick;
+         stopBall = (yball == 300 - radius);
+         
+         if (stopBall) 
+         {
+             IsGameOver();
+         }
+         
+         if (xIntersect && yIntersect)
+         {
+             ballDirection = -1;
+             xball = getRandom(radius, 300 - radius);
+             score = score + 1;
+         }
+      }
+      else
+      {
+          xIntersect = (xball >= 0) && (xball <= 300);
+          yIntersect = (yball == radius);
+          if (xIntersect && yIntersect)
+          {
+              ballDirection = 1;
+              xball = getRandom(radius, 300 - radius);
+          }
+      }
+  }
+  
+  function getRandom(min, max) 
+  {
+    return Math.random() * (max - min) + min;
+  }
+
+  var ballTimer = setInterval(MyTimer, 6);
+  
+  var xball = 50;
+  var yball = 10;
+  var radius = 5;
+  var ballDirection = 1;
+
+  var xstick = 30;
+  var ystick = 290;
+  var width = 40;
+  var height = 4;
+  
+  var xIntersect = false;
+  var yIntersect = false;
+  var stopBall = false;
+  
+  function MyKeyDownHandler(MyEvent) {
+    if (MyEvent.keyCode == 37) 
+       xstick = xstick - radius;
+
+    if (MyEvent.keyCode == 39)
+       xstick = xstick + radius;
+  
+   intersect();
+   drawThings();
+}
+
+  drawStick(xstick, ystick, 30, 4);
+  addEventListener("keydown", MyKeyDownHandler);
+
+</script>
+</body>
+</html> 
